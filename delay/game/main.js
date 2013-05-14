@@ -235,7 +235,7 @@ window.onload = function() {
             d += game.delay_spike;
             game.spike_at = game.accum_time + range(0.5,3);
         }
-        return d;
+        return d * 2; // Round Tripなので2倍
     }
     
     game.onload = function() {
