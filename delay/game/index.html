@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="x-ua-compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <script type="text/javascript" src="./jquery.js"></script>
+    <script type="text/javascript" src="../enchant/build/enchant.js"></script>    
+    <script type="text/javascript" src="../enchant/build/plugins/tl.enchant.js"></script>
+    <script type="text/javascript" src="main.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+  <div id="score">SCORE: 0 </div>
+    <div id="enchant-stage"></div> <!-- ←これだけ!! -->
+  
+    FPS: 
+    <select id="fps">
+    <option value="60">60</option>
+    <option value="30">30</option>
+    <option value="20">20</option>
+    <option value="15">15</option>
+    <option value="10">10</option>            
+    </select>
+    <script type="text/javascript">
+    $("#fps").change( function() {
+        $("#fps option:selected").each(function () {
+          game.setFPS( parseInt( $(this).text() ) );
+      });
+    });      
+    </script>
+
+    最小遅延:
+    <select id="delay_min">
+    <option value="0">0ms(ローカル)</option>
+    <option value="10">10ms(東京-東京)</option>
+    <option value="20">20ms(東京-京都)</option>
+    <option value="30">30ms</option>
+    <option value="50">50ms(東京-東京 LTE)</option>
+    <option value="100">100ms(東京-Twitter)</option>
+    <option value="150">150ms</option>
+    <option value="200">200ms(東京-東京 3G)</option>
+    <option value="300">300ms(東京-London)</option>
+    <option value="500">500ms(東京-東欧ロシア)</option>
+    <option value="1000">1000ms</option>    
+    </select>
+    <script type="text/javascript">
+    $("#delay_min").change( function() {
+        $("#delay_min option:selected").each(function () {
+          game.setMinDelay( parseInt( $(this).text() ) / 1000.0 );
+      });
+    });      
+    </script>
+
+    スパイク遅延:
+    <select id="delay_spike">
+    <option value="0">0ms(ローカル)</option>
+    <option value="100">100ms(混んでるwifi)</option>
+    <option value="200">200ms</option>
+    <option value="500">500ms(電波がいいモバイル)</option>
+    <option value="1000">1000ms</option>
+    <option value="2000">2000ms</option>        
+    <option value="3000">3000ms</option>            
+    </select>
+    <script type="text/javascript">
+    $("#delay_spike").change( function() {
+        $("#delay_spike option:selected").each(function () {
+          game.setSpikeDelay( parseInt( $(this).text() ) / 1000.0 );
+      });
+    });      
+    </script>
+
+    <br>
+
+    自己表示:
+    <select id="showpc">
+    <option value="1">ON</option>
+    <option value="0">OFF</option>
+    </select>
+    <script type="text/javascript">
+    $("#showpc").change( function() {
+        $("#showpc option:selected").each(function () {
+          game.setShowPC( $(this).text() == "ON" );
+      });
+    });      
+    </script>
+    
+    ゴースト表示:
+    <select id="ghost">
+    <option value="1">ON</option>
+    <option value="0">OFF</option>
+    </select>
+    <script type="text/javascript">
+    $("#ghost").change( function() {
+        $("#ghost option:selected").each(function () {
+          game.setGhost( $(this).text() == "ON" );
+      });
+    });      
+    </script>
+
+    ローカル判定:
+    <select id="localhit">
+    <option value="0">OFF</option>
+    <option value="1">ON</option>
+    </select>
+    <script type="text/javascript">
+    $("#localhit").change( function() {
+        $("#localhit option:selected").each(function () {
+          game.setLocalHit( $(this).text() == "ON" );
+        });    
+    });      
+    </script>
+
+    リモート爆弾判定:
+    <select id="remotebomb">
+    <option value="1">ON</option>      
+    <option value="0">OFF</option>
+    </select>
+    <script type="text/javascript">
+    $("#remotebomb").change( function() {
+        $("#remotebomb option:selected").each(function () {
+          game.setRemoteBombHit( $(this).text() == "ON" );
+        });    
+    });      
+    </script>    
+
+    <br>
+    
+    自動同期:
+    <select id="autosync">
+    <option value="1">ON</option>      
+    <option value="0">OFF</option>
+    </select>
+    <script type="text/javascript">
+    $("#autosync").change( function() {
+        $("#autosync option:selected").each(function () {
+          game.setAutoSync( $(this).text() == "ON" );
+        });    
+    });      
+    </script>    
+
+
+    <script type="text/javascript">    
+      $("#enchant-stage").click( function(e) {
+          var parentOffset = $(this).offset(); 
+          var relX = e.pageX - parentOffset.left;
+          var relY = e.pageY - parentOffset.top;
+          game.clickAt( relX );
+      });
+    </script>    
+</body>
+</html>
+
