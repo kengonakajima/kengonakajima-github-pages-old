@@ -85,6 +85,7 @@ function game_loop_callback() {
 
 setInterval( game_loop_callback, 16.667  );
 
+/*
 $(canvas).click( function(event) {
     var x = event.offsetX - canvas.width/2;
     var y = event.offsetY - canvas.height/2;
@@ -94,6 +95,7 @@ $(canvas).click( function(event) {
     s0.play( range(0.1,1) );
     
 });
+*/
 
 $(canvas).bind("touchstart", function(ev) {
     var x = event.offsetX - canvas.width/2;
