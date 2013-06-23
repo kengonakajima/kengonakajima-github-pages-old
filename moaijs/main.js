@@ -96,6 +96,10 @@ $(canvas).click( function(event) {
 });
 
 $(canvas).bind("touchstart", function(ev) {
+    var x = event.offsetX - canvas.width/2;
+    var y = event.offsetY - canvas.height/2;
+    
+    addProps(x,y,100);
     print("touched");
     $("#touch").html("touched");
 });
