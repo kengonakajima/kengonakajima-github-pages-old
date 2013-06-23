@@ -94,3 +94,8 @@ $(canvas).click( function(event) {
     s0.play( range(0.1,1) );
     
 });
+
+$(canvas).bind("touchstart", function(ev) {
+    print("touched");
+    $("#touch").html("touched");
+});
