@@ -104,4 +104,6 @@ $(canvas).bind("touchstart", function(ev) {
     addProps(x,y,100);
     print("touched");
     $("#touch").html("touched");
+
+    s0.play( range(0.1,1) );    
 });
