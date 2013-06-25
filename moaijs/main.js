@@ -70,7 +70,6 @@ function game_loop_callback() {
     if( last_print_at < t-1 ) {
         last_print_at = t;
         $("#fps").html( "FPS:" + framecnt );
-        print("fps:", framecnt );
         framecnt = 0;
     }
     framecnt ++;
