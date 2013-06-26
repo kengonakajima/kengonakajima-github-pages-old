@@ -29,7 +29,7 @@ dk.setSize( 16,16, 16,16,  256,256 );
 
 var ss = SoundSystem();
 
-var s0 = ss.newSound( "http://kengonakajima.github.io/moaijs/sounds/explode.wav" );
+var s0 = ss.newSound( "http://localhost:8888/sounds/explode.wav" );
 
 
 function addProps(x,y,n) {
@@ -47,12 +47,22 @@ function addProps(x,y,n) {
             this.loc.y += this.v.y * dt;
             if( this.loc.x < - canvas.width/2 || this.loc.x > canvas.width/2 ) this.v.x *= -1;
             if( this.loc.y < - canvas.height/2 || this.loc.y > canvas.height/2 ) this.v.y *= -1;
+            this.rot += dt;
             
             return true;
         }
         main_layer.insertProp(dp);
     }
 }
+
+var pp = new Prop();
+pp.setTexture(t);
+pp.setScl(128,128);
+pp.setLoc(200,0);
+pp.onUpdate = function(dt) {
+    this.rot += dt;
+}
+main_layer.insertProp(pp);
 
 
 addProps(0,0,10);
@@ -70,6 +80,7 @@ function game_loop_callback() {
     if( last_print_at < t-1 ) {
         last_print_at = t;
         $("#fps").html( "FPS:" + framecnt );
+        print("fps:", framecnt );
         framecnt = 0;
     }
     framecnt ++;
@@ -84,7 +95,6 @@ function game_loop_callback() {
 
 setInterval( game_loop_callback, 16.667  );
 
-
 $(canvas).click( function(event) {
     var x = event.offsetX - canvas.width/2;
     var y = event.offsetY - canvas.height/2;
@@ -95,7 +105,7 @@ $(canvas).click( function(event) {
     
 });
 
-
+// on ios6, have to play sound in touch events first.
 $(canvas).bind("touchstart", function(ev) {
     var x = event.offsetX - canvas.width/2;
     var y = event.offsetY - canvas.height/2;
