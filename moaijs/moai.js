@@ -77,14 +77,100 @@ function TileDeck() {
     return td;
 }
 
+
+function Grid() {
+    var g = {};
+    g.deck = null;
+    g.width = g.height = null;
+    g.setDeck = function(dk) { g.deck = dk; }
+    g.setSize = function(w,h) {
+        g.width = w;
+        g.height = h;
+        g.tbl = new Array(h);
+        for(var i=0;i<h;i++) {
+            g.tbl[i] = new Array(w);
+        }
+    }
+    g.changed = false;
+    g.set = function(x,y,ind) {
+        if( x >= 0 && x < g.width && y >= 0 && y < g.height ) {
+            g.tbl[Math.floor(y)][Math.floor(x)] = ind;
+        }
+        g.changed = true;
+    }
+    g.buf = null;
+    g.bufctx = null;
+    g.ensure = function( pixw, pixh ) {
+        if( g.buf == null ) {
+            g.buf = document.createElement("canvas");            
+            g.buf.width = pixw * g.width;
+            g.buf.height = pixh * g.height;
+            g.bufctx = g.buf.getContext("2d");
+        }
+        if( g.changed ) {
+            for(var y=0;y<g.height;y++) {
+                for(var x=0;x<g.width;x++) {
+                    var ind = g.tbl[y][x];
+                    var coords = g.deck.getCoords(ind);
+                    g.bufctx.drawImage( g.deck.tex.img,
+                                        coords.x0, coords.y0,
+                                        coords.w, coords.h,
+                                        x * pixw, y * pixh,
+                                        pixw, pixh );
+                }
+            }
+        }
+        g.changed = false;
+    }
+    // render 
+    g.draw = function(ctx) {
+        ctx.drawImage( g.buf, 0,0 );
+    }
+
+    return g;
+}
+
+function Animation() {
+    var ac = {};
+    ac.keys = [0];
+    ac.loop = false;
+    ac.step_time = 0.016667;
+    ac.total_time = 0;
+    ac.setKeys = function( step_time, inds ) {
+        assert( inds instanceof Array );
+        ac.keys = inds;
+        ac.step_time = step_time;
+        ac.total_time = step_time * inds.length;
+    }
+    ac.getIndex = function( t ) {
+        if(t<0) t=0;
+        var ind = Math.floor(t / ac.step_time);
+        assert(ind>=0);
+        if(ac.loop){
+            return ac.keys[ ind % ac.keys.length ];
+        } else {
+            if( ind >= ac.keys.length ) {
+                return ac.keys[ ac.keys.length - 1 ];
+            } else {
+                return ac.keys[ ind ];
+            }
+        }
+    }
+
+    return ac;
+}
+
 function Prop() {
     var p = {};
     p.parent_layer = null;
+    p.accum_time = 0;
     p.tex = null;
     p.loc = Vec2(0,0);
     p.scl = Vec2(16,16);
     p.index = null;
+    p.anim = null;
     p.rot = 0;
+    p.grids = new Array();
     p.onUpdate = function(p) { return true; }
     
     p.setTexture = function(t) {
@@ -96,6 +182,9 @@ function Prop() {
     p.setDeck = function(dk) {
         p.deck = dk;
         p.index = 0;
+    }
+    p.setAnim = function(anm) {
+        p.anim = anm;
     }
     p.setLoc = function(a,b) {
         if( b != null ) {
@@ -114,10 +203,19 @@ function Prop() {
         }
     };
     p.poll = function(dt) {
+        p.accum_time += dt;
         var keep = p.onUpdate.apply(p, [dt]);
         if(keep == false ) {
-            print("to clean..");
+            p.parent_layer.removeProp(p);
+            return;
         }
+        if( p.anim ) {
+            var ind = p.anim.getIndex(p.accum_time);
+            p.setIndex( ind );
+        }
+    }
+    p.addGrid = function(g) {
+        p.grids.push(g);
     }
     // 右下が+X,+Y
     p.render = function() {
@@ -131,11 +229,10 @@ function Prop() {
 
         var ctx = p.parent_moai.ctx;
 
-
-            var x = Math.floor(x); 
-            var y = Math.floor(y);
-            ctx.translate(x,y);
-            if( p.rot != 0 ) ctx.rotate(p.rot);
+        var x = Math.floor(x); 
+        var y = Math.floor(y);
+        ctx.translate(x,y);
+        if( p.rot != 0 ) ctx.rotate(p.rot);
 
         if( p.deck ) {
             assert( p.deck.tex );
@@ -146,7 +243,7 @@ function Prop() {
                            - p.scl.x/2, - p.scl.y/2,
                            p.scl.x,p.scl.y
                          );
-        } else {
+        } else if( p.tex ){
             ctx.drawImage( p.tex.img,
                            0,0,
                            16,16,
@@ -154,6 +251,13 @@ function Prop() {
                            p.scl.x,p.scl.y
                          );
         }
+
+        for(var i=0;i<p.grids.length;i++) {
+            var grid = p.grids[i];
+            grid.ensure( p.scl.x, p.scl.y );
+            grid.draw(ctx)
+        }
+
         if( p.rot != 0 ) ctx.rotate(-p.rot);
         ctx.translate(-x,-y);            
 
@@ -173,10 +277,12 @@ function Layer() {
         assert( l.parent_moai != null );
         p.parent_layer = l;
         p.parent_moai = l.parent_moai;
-
         l.props.push(p);
-        
     };
+    l.removeProp = function(p) {
+        var ind = l.props.indexOf(p);
+        l.props.splice(ind,1);
+    }
     l.setCamera = function(cam) {
         l.camera = cam;
     }
